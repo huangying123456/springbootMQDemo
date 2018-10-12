@@ -1,0 +1,8 @@
+mq:
+  topic.business: dna-dev
+  producerId.business: PID-youhujia-dev-dna
+  consumerId.business: CID-youhujia-dev-dna
+  accesskey: LTAIDU0lmRQpEcDs
+  secretkey: ajgVMzP3byeiwtqRzOal7L4znk42hH
+  onsaddr: http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
+  subExpression:

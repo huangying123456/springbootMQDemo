@@ -1,0 +1,123 @@
+group = 'com.youhujia.mqDemo'
+version = '1.0.0'
+
+
+repositories {
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+    jcenter()
+    mavenLocal()
+}
+
+if (project.hasProperty("buildPro") && buildPro == 'release') {
+    repositories {
+        maven { url "http://maven.dev.youhujia.com/nexus/content/repositories/releases/" }
+    }
+} else {
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+        resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+    }
+
+    if ((project.hasProperty("buildEnv") && (buildEnv.contains("develop") || buildEnv.contains("staging")))) {
+        repositories {
+            maven { url "http://maven.dev.youhujia.com/nexus/content/repositories/$buildEnv/" }
+        }
+
+    } else {
+        repositories {
+            maven { url "http://maven.dev.youhujia.com/nexus/content/repositories/develop/" }
+        }
+    }
+}
+
+
+buildscript {
+    ext.kotlin_version = '1.2.31'
+    ext {
+        springBootVersion = '1.5.10.RELEASE'
+    }
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'application'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'docker'
+//apply from: 'gradle/checkstyle.gradle'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Edgware.RELEASE'
+    }
+}
+
+dependencies {
+    compile group: "org.springframework.boot", name: "spring-boot-starter-actuator", version: "${springBootVersion}"
+    compile group: "org.springframework.boot", name: "spring-boot-devtools", version: "$springBootVersion"
+    compile group: "org.springframework.boot", name: "spring-boot-starter-web", version: "$springBootVersion"
+
+
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+
+    compile group: "org.springframework.cloud", name: "spring-cloud-starter-config"
+    compile group: "org.springframework.cloud", name: "spring-cloud-starter-eureka"
+    compile group: "org.springframework.cloud", name: "spring-cloud-starter-sleuth"
+//    compile group: "org.springframework.cloud", name: "spring-cloud-starter-zipkin"
+
+    compile group: "com.netflix.feign", name: "feign-okhttp", version: "8.18.0"
+    compile group: "com.google.protobuf", name: "protobuf-java", version: "2.6.1"
+    compile group: "com.googlecode.protobuf-java-format", name: "protobuf-java-format", version: "1.4"
+    compile group: "com.alibaba", name: "fastjson", version: "1.2.17"
+    compile group: "org.springframework.cloud", name: "spring-cloud-starter-feign"
+    compile group: 'com.netflix.feign', name: 'feign-slf4j', version: '8.16.2'
+    compile group: 'org.springframework', name: 'spring-aspects'
+    compile group: 'org.apache.commons', name: 'commons-pool2'
+    compile group: 'redis.clients', name: 'jedis', version: '2.7.2'
+    compile group: "org.springframework.cloud", name: "spring-cloud-starter-sleuth"
+    compile group: "io.jsonwebtoken", name: "jjwt", version: "0.7.0"
+
+    testCompile group: "org.springframework.boot", name: "spring-boot-starter-test", version: "$springBootVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+
+    compile group: "com.aliyun.openservices", name: "ons-client", version: "1.2.7.Final"
+}
+
+
+if (project.hasProperty("buildPro") && buildPro == 'release') {
+    println("release version")
+    dependencies {
+        compile group: "com.youhujia.yhcloud.brane", name: "youhujia-brane", version: "1.2.9"
+    }
+} else {
+    if (project.hasProperty("buildEnv") && ((buildEnv.contains("develop") || buildEnv.contains("staging")))) {
+        repositories {
+            maven { url "http://maven.dev.youhujia.com/nexus/content/repositories/releases/" }
+        }
+        dependencies {
+            compile group: "com.youhujia.yhcloud.brane", name: "youhujia-brane", version: "2.1.0-SNAPSHOT", changing: true
+        }
+    } else {
+        repositories {
+            maven { url "http://maven.dev.youhujia.com/nexus/content/repositories/releases/" }
+        }
+        dependencies {
+            compile group: "com.youhujia.yhcloud.brane", name: "youhujia-brane", version: "2.1.0-SNAPSHOT", changing: true
+        }
+    }
+}
+
+
+
